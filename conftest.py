@@ -3,12 +3,13 @@ AlphaFX root conftest.py
 Ensures the code/backend directory is on sys.path and Django is configured
 when pytest is invoked from the project root directory.
 """
+
 import os
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-BACKEND_DIR  = PROJECT_ROOT / "code" / "backend"
+BACKEND_DIR = PROJECT_ROOT / "code" / "backend"
 
 # Add backend to path so alphafx package and apps are importable
 if str(BACKEND_DIR) not in sys.path:
