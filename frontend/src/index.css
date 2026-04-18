@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: #0a0e1a;
+    color: #e2e8f0;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f1628;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #16a34a;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-800 border border-surface-600 rounded-xl p-5;
+  }
+  .card-sm {
+    @apply bg-surface-800 border border-surface-600 rounded-lg p-4;
+  }
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-150 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply bg-surface-600 hover:bg-surface-500 text-slate-200 font-medium px-4 py-2 rounded-lg transition-colors duration-150;
+  }
+  .input {
+    @apply w-full bg-surface-700 border border-surface-500 text-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-500 text-sm;
+  }
+  .label {
+    @apply block text-xs font-medium text-slate-400 mb-1;
+  }
+  .stat-value {
+    @apply text-xl font-semibold text-slate-100 font-mono;
+  }
+  .stat-label {
+    @apply text-xs text-slate-500 uppercase tracking-wider;
+  }
+  .up {
+    @apply text-emerald-400;
+  }
+  .down {
+    @apply text-red-400;
+  }
+  .neutral {
+    @apply text-slate-400;
+  }
+  .badge-buy {
+    @apply px-2 py-0.5 rounded text-xs font-medium bg-emerald-900/50 text-emerald-400;
+  }
+  .badge-sell {
+    @apply px-2 py-0.5 rounded text-xs font-medium bg-red-900/50 text-red-400;
+  }
+  .badge-neutral {
+    @apply px-2 py-0.5 rounded text-xs font-medium bg-surface-600 text-slate-400;
+  }
+  .table-th {
+    @apply text-xs font-medium text-slate-500 uppercase tracking-wider;
+  }
+  .table-td {
+    @apply text-sm text-slate-300 font-mono;
+  }
+  .section-title {
+    @apply text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider;
+  }
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-surface-700 transition-colors;
+  }
+  .nav-active {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-brand-400 bg-brand-900/30 border border-brand-800/40;
+  }
+}
