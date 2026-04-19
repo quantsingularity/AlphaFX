@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import { portfoliosApi } from "../services/api";
+import { portfolioApi } from "../services/api";
 
 function fmt(n?: number, dp = 2) {
   return n !== undefined ? n.toFixed(dp) : "—";
@@ -8,7 +8,8 @@ function fmt(n?: number, dp = 2) {
 
 export default function Portfolio() {
   const qc = useQueryClient();
-  const { data: portfolios = [] } = useQuery("portfolios", portfoliosApi.list);
+  const { data: portfoliosData } = useQuery("portfolios", portfolioApi.list);
+  const portfolios: any[] = (portfoliosData as any) ?? [];
   const [selected, setSelected] = useState<string | null>(null);
   const [showNewPort, setShowNewPort] = useState(false);
   const [showNewPos, setShowNewPos] = useState(false);
@@ -27,33 +28,33 @@ export default function Portfolio() {
 
   const { data: portDetail } = useQuery(
     ["port-detail", selected],
-    () => portfoliosApi.get(selected!),
+    () => portfolioApi.get(selected!),
     { enabled: !!selected },
   );
   const { data: positions } = useQuery(
     ["positions", selected],
-    () => portfoliosApi.positions(selected!),
+    () => portfolioApi.listPositions(selected!),
     { enabled: !!selected },
   );
   const { data: riskData } = useQuery(
     ["risk", selected],
-    () => portfoliosApi.risk(selected!),
+    () => portfolioApi.getRisk(selected!),
     { enabled: !!selected },
   );
   const { data: scenarioData } = useQuery(
     ["scenarios", selected],
-    () => portfoliosApi.scenarios(selected!),
+    () => portfolioApi.getScenarios(selected!),
     { enabled: !!selected },
   );
 
-  const createPort = useMutation(portfoliosApi.create, {
+  const createPort = useMutation(portfolioApi.create, {
     onSuccess: () => {
       qc.invalidateQueries("portfolios");
       setShowNewPort(false);
     },
   });
   const openPos = useMutation(
-    (data: any) => portfoliosApi.openPos(selected!, data),
+    (data: any) => portfolioApi.openPosition(selected!, data),
     {
       onSuccess: () => {
         qc.invalidateQueries(["positions", selected]);
@@ -63,7 +64,8 @@ export default function Portfolio() {
     },
   );
   const closePos = useMutation(
-    ({ posId }: { posId: string }) => portfoliosApi.closePos(selected!, posId),
+    ({ posId }: { posId: string }) =>
+      portfolioApi.closePosition(selected!, posId),
     {
       onSuccess: () => {
         qc.invalidateQueries(["positions", selected]);
@@ -71,14 +73,14 @@ export default function Portfolio() {
       },
     },
   );
-  const deletePort = useMutation(portfoliosApi.delete, {
+  const deletePort = useMutation(portfolioApi.delete, {
     onSuccess: () => {
       qc.invalidateQueries("portfolios");
       setSelected(null);
     },
   });
 
-  const posList = positions?.positions ?? [];
+  const posList = (positions as any)?.positions ?? [];
 
   return (
     <div className="p-6 space-y-6">
@@ -155,7 +157,7 @@ export default function Portfolio() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="space-y-2">
-          {portfolios.map((p) => (
+          {portfolios.map((p: any) => (
             <div
               key={p.id}
               onClick={() => setSelected(p.id)}
@@ -191,13 +193,13 @@ export default function Portfolio() {
         </div>
 
         <div className="lg:col-span-3 space-y-5">
-          {portDetail && (
+          {!!portDetail && (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                ["Equity", "$" + fmt(portDetail.equity)],
-                ["Free Margin", "$" + fmt(portDetail.free_margin)],
-                ["Used Margin", "$" + fmt(portDetail.used_margin)],
-                ["Total P&L", "$" + fmt(portDetail.total_pnl)],
+                ["Equity", "$" + fmt((portDetail as any)?.equity)],
+                ["Free Margin", "$" + fmt((portDetail as any)?.free_margin)],
+                ["Used Margin", "$" + fmt((portDetail as any)?.used_margin)],
+                ["Total P&L", "$" + fmt((portDetail as any)?.total_pnl)],
               ].map(([l, v]) => (
                 <div key={l as string} className="card-sm">
                   <p className="stat-label">{l}</p>
@@ -349,18 +351,27 @@ export default function Portfolio() {
             </div>
           )}
 
-          {riskData && (
+          {!!riskData && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className="card">
                 <p className="section-title">Risk Metrics</p>
                 <div className="space-y-2">
                   {[
-                    ["VaR 1D (99%)", "$" + fmt(riskData.var_1d)],
-                    ["VaR 10D (99%)", "$" + fmt(riskData.var_10d)],
-                    ["Exp. Shortfall", "$" + fmt(riskData.expected_shortfall)],
-                    ["Total Notional", "$" + fmt(riskData.total_notional)],
-                    ["Largest Pos %", fmt(riskData.largest_position_pct) + "%"],
-                    ["HHI Conc.", fmt(riskData.concentration_hhi, 4)],
+                    ["VaR 1D (99%)", "$" + fmt((riskData as any).var_1d)],
+                    ["VaR 10D (99%)", "$" + fmt((riskData as any).var_10d)],
+                    [
+                      "Exp. Shortfall",
+                      "$" + fmt((riskData as any).expected_shortfall),
+                    ],
+                    [
+                      "Total Notional",
+                      "$" + fmt((riskData as any).total_notional),
+                    ],
+                    [
+                      "Largest Pos %",
+                      fmt((riskData as any).largest_position_pct) + "%",
+                    ],
+                    ["HHI Conc.", fmt((riskData as any).concentration_hhi, 4)],
                   ].map(([l, v]) => (
                     <div
                       key={l as string}
@@ -378,29 +389,29 @@ export default function Portfolio() {
               <div className="card">
                 <p className="section-title">Net Currency Exposure</p>
                 <div className="space-y-2">
-                  {Object.entries(riskData.net_exposure_by_currency ?? {}).map(
-                    ([ccy, exp]) => (
-                      <div
-                        key={ccy}
-                        className="flex justify-between border-b border-surface-700 pb-1.5"
+                  {Object.entries(
+                    (riskData as any).net_exposure_by_currency ?? {},
+                  ).map(([ccy, exp]) => (
+                    <div
+                      key={ccy}
+                      className="flex justify-between border-b border-surface-700 pb-1.5"
+                    >
+                      <span className="text-xs text-slate-400 font-medium">
+                        {ccy}
+                      </span>
+                      <span
+                        className={`text-xs font-mono ${(exp as number) >= 0 ? "text-emerald-400" : "text-red-400"}`}
                       >
-                        <span className="text-xs text-slate-400 font-medium">
-                          {ccy}
-                        </span>
-                        <span
-                          className={`text-xs font-mono ${(exp as number) >= 0 ? "text-emerald-400" : "text-red-400"}`}
-                        >
-                          ${fmt(exp as number)}
-                        </span>
-                      </div>
-                    ),
-                  )}
+                        ${fmt(exp as number)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
 
-          {scenarioData && (
+          {!!scenarioData && (
             <div className="card">
               <p className="section-title">Scenario Analysis</p>
               <table className="w-full text-sm">
@@ -417,7 +428,7 @@ export default function Portfolio() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-surface-700">
-                  {scenarioData.scenarios?.map((s: any) => (
+                  {(scenarioData as any).scenarios?.map((s: any) => (
                     <tr key={s.scenario_name}>
                       <td className="py-2 text-slate-300">{s.scenario_name}</td>
                       <td

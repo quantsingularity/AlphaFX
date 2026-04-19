@@ -7,10 +7,17 @@ function fmtRate(n: number, pair: string) {
 }
 
 export default function Rates() {
-  const { data: majors, isLoading } = useQuery("majors", ratesApi.majors, {
-    refetchInterval: 10000,
-  });
-  const { data: irData } = useQuery("interest-rates", ratesApi.interestRates);
+  const { data: majors, isLoading } = useQuery(
+    "majors",
+    ratesApi.getMajorPairs,
+    {
+      refetchInterval: 10000,
+    },
+  );
+  const { data: irData } = useQuery(
+    "interest-rates",
+    ratesApi.getInterestRates,
+  );
   const [fwdForm, setFwdForm] = useState({
     base: "EUR",
     quote: "USD",
@@ -21,21 +28,17 @@ export default function Rates() {
   const [crossResult, setCrossResult] = useState<any>(null);
 
   const handleForward = async () => {
-    const r = await ratesApi.forward(
-      fwdForm.base,
-      fwdForm.quote,
-      fwdForm.tenor_days,
-    );
+    const r = await ratesApi.getForwardRate(fwdForm);
     setFwdResult(r);
   };
 
   const handleCross = async () => {
-    const r = await ratesApi.cross(crossForm.base, crossForm.quote);
+    const r = await ratesApi.getCrossRate(crossForm);
     setCrossResult(r);
   };
 
-  const pairs = majors?.pairs ?? [];
-  const rates = irData?.rates ?? {};
+  const pairs: any[] = (majors as any)?.pairs ?? [];
+  const rates: Record<string, number> = (irData as any)?.rates ?? {};
 
   return (
     <div className="p-6 space-y-6">
@@ -75,7 +78,7 @@ export default function Rates() {
                     </td>
                   </tr>
                 ) : (
-                  pairs.map((p) => {
+                  pairs.map((p: any) => {
                     const pair = p.base + p.quote;
                     return (
                       <tr key={pair} className="hover:bg-surface-700/30">

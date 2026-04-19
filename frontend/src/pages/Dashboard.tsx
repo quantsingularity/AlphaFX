@@ -7,14 +7,14 @@ function fmtRate(n: number, pair: string) {
 }
 
 export default function Dashboard() {
-  const { data: majors } = useQuery("majors", ratesApi.majors, {
+  const { data: majors } = useQuery("majors", ratesApi.getMajorPairs, {
     refetchInterval: 15000,
   });
-  const { data: scan } = useQuery("scan", technicalApi.scanAll);
-  const { data: calendar } = useQuery("calendar", ratesApi.calendar);
+  const { data: scan } = useQuery("scan", () => technicalApi.scan());
+  const { data: calendar } = useQuery("calendar", ratesApi.getCalendar);
 
-  const pairs = majors?.pairs ?? [];
-  const signals = scan?.signals ?? [];
+  const pairs: any[] = (majors as any)?.pairs ?? [];
+  const signals: any[] = (scan as any)?.signals ?? [];
 
   return (
     <div className="p-6 space-y-6">
@@ -26,7 +26,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {pairs.slice(0, 4).map((p) => (
+        {pairs.slice(0, 4).map((p: any) => (
           <StatCard
             key={p.base + p.quote}
             label={`${p.base}/${p.quote}`}
@@ -54,7 +54,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-700">
-                {pairs.map((p) => {
+                {pairs.map((p: any) => {
                   const pair = p.base + p.quote;
                   return (
                     <tr key={pair} className="hover:bg-surface-700/30">
@@ -136,7 +136,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-700">
-              {(calendar?.events ?? []).map((ev: any, i: number) => (
+              {((calendar as any)?.events ?? []).map((ev: any, i: number) => (
                 <tr key={i} className="hover:bg-surface-700/30">
                   <td className="py-2.5 text-slate-400 pr-4 text-sm">
                     {ev.date}

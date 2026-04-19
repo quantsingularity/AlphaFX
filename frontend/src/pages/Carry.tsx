@@ -15,14 +15,14 @@ import {
 export default function Carry() {
   const [minCarry, setMinCarry] = useState(0);
   const { data: carryData } = useQuery(["carry", minCarry], () =>
-    ratesApi.carry(minCarry),
+    ratesApi.getCarry(minCarry),
   );
   const { data: swapData } = useQuery("swaps", analyticsApi.swapRates);
   const { data: pppData } = useQuery("ppp", analyticsApi.ppp);
 
-  const opps = carryData?.opportunities ?? [];
-  const swaps = swapData?.swap_rates ?? [];
-  const ppps = pppData?.ppp_analysis ?? [];
+  const opps = (carryData as any)?.opportunities ?? [];
+  const swaps = (swapData as any)?.swap_rates ?? [];
+  const ppps = (pppData as any)?.ppp_analysis ?? [];
 
   const chartData = opps.slice(0, 10).map((o: any) => ({
     pair: o.pair,

@@ -41,8 +41,9 @@ export default function History() {
     portfolioApi
       .list()
       .then((r) => {
-        setPortfolios(r.data);
-        if (r.data.length > 0) setSelectedId(r.data[0].id);
+        const list = r as any[];
+        setPortfolios(list);
+        if (list.length > 0) setSelectedId(list[0].id);
       })
       .catch(() => {});
   }, []);
@@ -55,8 +56,8 @@ export default function History() {
         portfolioApi.getHistory(id),
         portfolioApi.getPerformance(id),
       ]);
-      setTrades(h.data.trades || []);
-      setPerf(p.data);
+      setTrades((h as any).trades || []);
+      setPerf(p as any);
     } catch {
       /* ignore */
     }

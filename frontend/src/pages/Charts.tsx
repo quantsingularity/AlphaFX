@@ -32,11 +32,14 @@ export default function Charts() {
     { keepPreviousData: true },
   );
   const { data: corrData } = useQuery("correlation", () =>
-    technicalApi.correlation("EURUSD,GBPUSD,USDJPY,AUDUSD,USDCAD", 60),
+    technicalApi.correlation(
+      ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"],
+      60,
+    ),
   );
 
-  const ind = data?.indicators;
-  const ohlcv = data?.ohlcv ?? [];
+  const ind = (data as any)?.indicators;
+  const ohlcv = (data as any)?.ohlcv ?? [];
 
   const priceData = ohlcv.map((d: any) => ({
     ...d,
@@ -71,16 +74,16 @@ export default function Charts() {
         </div>
       </div>
 
-      {data && (
+      {!!data && (
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {[
             [
               "Price",
-              data.current_price?.toFixed(5),
-              (data.change_pct >= 0 ? "+" : "") +
-                data.change_pct?.toFixed(3) +
+              (data as any).current_price?.toFixed(5),
+              ((data as any).change_pct >= 0 ? "+" : "") +
+                (data as any).change_pct?.toFixed(3) +
                 "%",
-              data.change_pct >= 0 ? "up" : "down",
+              (data as any).change_pct >= 0 ? "up" : "down",
             ],
             [
               "RSI 14",
@@ -100,17 +103,17 @@ export default function Charts() {
             ],
             [
               "Vol %",
-              data.annualized_volatility_pct?.toFixed(2) + "%",
+              (data as any).annualized_volatility_pct?.toFixed(2) + "%",
               "Annualized",
               "neutral",
             ],
             [
               "Signal",
-              data.signal,
+              (data as any).signal,
               "Overall",
-              data.signal === "BULLISH"
+              (data as any).signal === "BULLISH"
                 ? "up"
-                : data.signal === "BEARISH"
+                : (data as any).signal === "BEARISH"
                   ? "down"
                   : "neutral",
             ],
@@ -214,7 +217,7 @@ export default function Charts() {
                 <thead>
                   <tr>
                     <th className="pb-2 text-left text-slate-500"></th>
-                    {corrData.pairs.map((p: string) => (
+                    {(corrData as any).pairs.map((p: string) => (
                       <th
                         key={p}
                         className="pb-2 text-center text-slate-500 font-medium"
@@ -225,10 +228,10 @@ export default function Charts() {
                   </tr>
                 </thead>
                 <tbody>
-                  {corrData.matrix.map((row: number[], i: number) => (
+                  {(corrData as any).matrix.map((row: number[], i: number) => (
                     <tr key={i}>
                       <td className="py-1.5 pr-2 text-slate-400 font-medium">
-                        {corrData.pairs[i].slice(0, 6)}
+                        {(corrData as any).pairs[i].slice(0, 6)}
                       </td>
                       {row.map((val: number, j: number) => (
                         <td

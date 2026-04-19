@@ -29,14 +29,14 @@ export default function Options() {
   const handlePrice = async () => {
     setLoading(true);
     try {
-      setResult(await ratesApi.option(form));
+      setResult((await ratesApi.priceOption(form)) as FXOptionResult);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSurface = async () => {
-    const s = await ratesApi.volSurface(volPair);
+    const s = await ratesApi.getVolSurface(volPair);
     setSurface(s);
   };
 

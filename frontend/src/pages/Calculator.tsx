@@ -34,7 +34,7 @@ export default function Calculator() {
     setRrResult(await analyticsApi.riskReward(rrForm));
   };
   const handlePV = async () => {
-    setPvResult(await ratesApi.pipValue(pvForm.pair, pvForm.notional));
+    setPvResult(await ratesApi.getPipValue(pvForm.pair, pvForm.notional));
   };
 
   return (

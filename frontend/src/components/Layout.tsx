@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, Component, ErrorInfo, ReactNode } from "react";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: "📊" },
@@ -13,6 +13,44 @@ const NAV = [
   { to: "/history", label: "History", icon: "📋" },
 ];
 
+// ── Error boundary ────────────────────────────────────────────────────────────
+interface EBState {
+  hasError: boolean;
+  message: string;
+}
+class PageErrorBoundary extends Component<{ children: ReactNode }, EBState> {
+  state: EBState = { hasError: false, message: "" };
+  static getDerivedStateFromError(err: Error): EBState {
+    return { hasError: true, message: err.message };
+  }
+  componentDidCatch(_err: Error, _info: ErrorInfo) {
+    /* could log here */
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-4 text-center px-6">
+          <span className="text-4xl">⚠️</span>
+          <p className="text-slate-300 font-medium">
+            Something went wrong on this page.
+          </p>
+          <p className="text-xs text-slate-500 font-mono max-w-sm break-words">
+            {this.state.message}
+          </p>
+          <button
+            className="btn-secondary text-sm"
+            onClick={() => this.setState({ hasError: false, message: "" })}
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ── Layout ────────────────────────────────────────────────────────────────────
 export default function Layout() {
   const [open, setOpen] = useState(true);
 
@@ -59,7 +97,9 @@ export default function Layout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto">
-        <Outlet />
+        <PageErrorBoundary>
+          <Outlet />
+        </PageErrorBoundary>
       </main>
     </div>
   );

@@ -13,5 +13,20 @@ export default defineConfig({
       },
     },
   },
-  build: { outDir: "dist", sourcemap: false },
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core framework
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          // Data fetching
+          "vendor-query": ["react-query", "axios"],
+          // Charts
+          "vendor-charts": ["recharts"],
+        },
+      },
+    },
+  },
 });

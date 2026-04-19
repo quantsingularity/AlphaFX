@@ -39,7 +39,7 @@ export default function Alerts() {
   const fetchAlerts = useCallback(async () => {
     try {
       const r = await alertsApi.list();
-      setAlerts(r.data.alerts || []);
+      setAlerts((r as any).alerts || []);
     } catch {
       /* ignore */
     }
@@ -50,7 +50,7 @@ export default function Alerts() {
     try {
       const r = await ratesApi.getMajorPairs();
       const map: Record<string, number> = {};
-      for (const q of r.data.pairs) map[`${q.base}${q.quote}`] = q.mid;
+      for (const q of (r as any).pairs) map[`${q.base}${q.quote}`] = q.mid;
       setLiveRates(map);
     } catch {
       /* ignore */
