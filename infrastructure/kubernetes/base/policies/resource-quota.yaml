@@ -1,0 +1,60 @@
+---
+# Namespace-wide resource quota
+# Adjust these ceilings to match your cluster capacity and budget.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: alphafx-quota
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: policy
+spec:
+  hard:
+    # Compute
+    requests.cpu: "4"
+    requests.memory: "4Gi"
+    limits.cpu: "8"
+    limits.memory: "8Gi"
+    # Storage
+    requests.storage: "30Gi"
+    persistentvolumeclaims: "10"
+    # Object counts
+    pods: "40"
+    services: "20"
+    secrets: "20"
+    configmaps: "20"
+
+---
+# Per-container default and max limits
+# Prevents containers without explicit limits from consuming unbounded resources.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: alphafx-limitrange
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: policy
+spec:
+  limits:
+    # Container defaults and maximums
+    - type: Container
+      default:
+        cpu: "200m"
+        memory: "256Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      max:
+        cpu: "2"
+        memory: "4Gi"
+      min:
+        cpu: "50m"
+        memory: "64Mi"
+    # PVC maximum size
+    - type: PersistentVolumeClaim
+      max:
+        storage: "20Gi"
+      min:
+        storage: "1Gi"

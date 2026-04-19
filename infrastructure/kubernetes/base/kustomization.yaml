@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: alphafx
+
+resources:
+  # Namespace
+  - namespace.yaml
+
+  # Shared config and secrets
+  - configmap.yaml
+  - secret.yaml
+
+  # RBAC
+  - rbac/serviceaccount.yaml
+  - rbac/role.yaml
+  - rbac/rolebinding.yaml
+
+  # Data layer
+  - postgres/statefulset.yaml
+  - postgres/service.yaml
+  - redis/statefulset.yaml
+  - redis/service.yaml
+
+  # Application layer
+  - backend/deployment.yaml
+  - backend/service.yaml
+  - backend/hpa.yaml
+  - ai-services/deployment.yaml
+  - ai-services/service.yaml
+  - ai-services/pvc.yaml
+  - ai-services/hpa.yaml
+  - frontend/deployment.yaml
+  - frontend/service.yaml
+
+  # Ingress
+  - ingress/ingress.yaml
+
+  # Policies
+  - policies/network-policy.yaml
+  - policies/pod-disruption-budget.yaml
+  - policies/resource-quota.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: alphafx
+  app.kubernetes.io/managed-by: kustomize

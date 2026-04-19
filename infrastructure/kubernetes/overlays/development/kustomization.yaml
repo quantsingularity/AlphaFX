@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: alphafx
+
+bases:
+  - ../../base
+
+# Development-specific image tags (use branch/commit tags in CI)
+images:
+  - name: registry.example.com/alphafx/backend
+    newTag: dev
+  - name: registry.example.com/alphafx/ai-services
+    newTag: dev
+  - name: registry.example.com/alphafx/frontend
+    newTag: dev
+
+# Patch replicas and resources down for development clusters
+patches:
+  - path: patches/backend-dev.yaml
+    target:
+      kind: Deployment
+      name: backend
+  - path: patches/ai-services-dev.yaml
+    target:
+      kind: Deployment
+      name: ai-services
+  - path: patches/frontend-dev.yaml
+    target:
+      kind: Deployment
+      name: frontend
+
+# Override ConfigMap values for development
+configMapGenerator:
+  - name: alphafx-config
+    behavior: merge
+    literals:
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,alphafx-dev.example.com
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://alphafx-dev.example.com
+
+commonLabels:
+  environment: development

@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: alphafx
+
+bases:
+  - ../../base
+
+# Production image tags are pinned to immutable digest or semver tags -- never "latest"
+images:
+  - name: registry.example.com/alphafx/backend
+    newTag: "1.0.0"
+  - name: registry.example.com/alphafx/ai-services
+    newTag: "1.0.0"
+  - name: registry.example.com/alphafx/frontend
+    newTag: "1.0.0"
+
+# Patch replicas and resources up for production
+patches:
+  - path: patches/backend-prod.yaml
+    target:
+      kind: Deployment
+      name: backend
+  - path: patches/ai-services-prod.yaml
+    target:
+      kind: Deployment
+      name: ai-services
+  - path: patches/postgres-prod.yaml
+    target:
+      kind: StatefulSet
+      name: postgres
+
+# Override ConfigMap values for production
+configMapGenerator:
+  - name: alphafx-config
+    behavior: merge
+    literals:
+      - DEBUG=False
+      - ALLOWED_HOSTS=alphafx.example.com
+      - CORS_ALLOWED_ORIGINS=https://alphafx.example.com
+      - CACHE_TTL=300
+
+commonLabels:
+  environment: production

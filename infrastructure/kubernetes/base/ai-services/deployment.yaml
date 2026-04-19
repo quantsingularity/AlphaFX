@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-services
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: ai-services
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-services
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ai-services
+        app.kubernetes.io/name: alphafx
+        app.kubernetes.io/component: ai-services
+    spec:
+      serviceAccountName: alphafx
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: wait-for-redis
+          image: redis:7-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until redis-cli -h redis ping; do
+                echo "Waiting for Redis..."
+                sleep 2
+              done
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      containers:
+        - name: ai-services
+          image: registry.example.com/alphafx/ai-services:latest
+          command:
+            - uvicorn
+            - ai_services.api.main:app
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "8001"
+            - --workers
+            - "2"
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: alphafx-config
+                  key: AI_REDIS_URL
+            - name: AI_MODEL_DIR
+              valueFrom:
+                configMapKeyRef:
+                  name: alphafx-config
+                  key: AI_MODEL_DIR
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 45
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 60 # Up to 5 min for model loading
+          volumeMounts:
+            - name: ai-models
+              mountPath: /app/saved_models
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: ai-models
+          persistentVolumeClaim:
+            claimName: ai-models-pvc
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - ai-services
+                topologyKey: kubernetes.io/hostname

@@ -1,0 +1,79 @@
+---
+# Backend: at least 1 pod always available during voluntary disruptions
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: backend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend
+
+---
+# AI Services: at least 1 pod always available (model loading takes time)
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ai-services-pdb
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: ai-services
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ai-services
+
+---
+# Frontend: at least 1 pod always available
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: frontend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend
+
+---
+# Postgres: StatefulSet with 1 replica -- disallow voluntary disruption
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: postgres
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: postgres
+
+---
+# Redis: StatefulSet with 1 replica -- disallow voluntary disruption
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-pdb
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: redis
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: redis

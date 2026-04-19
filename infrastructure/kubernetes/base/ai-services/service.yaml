@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-services
+  namespace: alphafx
+  labels:
+    app.kubernetes.io/name: alphafx
+    app.kubernetes.io/component: ai-services
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-services
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+      protocol: TCP

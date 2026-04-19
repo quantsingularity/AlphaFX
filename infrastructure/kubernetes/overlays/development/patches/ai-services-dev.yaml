@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-services
+  namespace: alphafx
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: ai-services
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
