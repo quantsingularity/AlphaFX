@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { AuthProvider } from "./context/AuthContext";
 import App from "./App";
 import "./index.css";
 
@@ -11,8 +12,7 @@ const queryClient = new QueryClient({
       retry: 1,
       refetchOnWindowFocus: false,
       staleTime: 20000,
-      // Suppress errors in the UI when the API is unreachable
-      onError: () => {},
+      onError: () => {}, // suppress UI errors when API is offline
     },
   },
 });
@@ -24,7 +24,9 @@ ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,
