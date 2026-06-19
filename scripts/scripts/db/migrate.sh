@@ -25,12 +25,11 @@ MODE="local"
 CHECK_ONLY=false
 APP=""
 
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --docker) MODE="docker"; shift ;;
-        --check)  CHECK_ONLY=true; shift ;;
-        --app)    shift; APP="${1:-}"; shift ;;
-        *) shift ;;
+for arg in "$@"; do
+    case $arg in
+        --docker) MODE="docker" ;;
+        --check)  CHECK_ONLY=true ;;
+        --app)    shift; APP="$1" ;;
     esac
 done
 

@@ -6,10 +6,16 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
+      // Forward /api/* and /ws/* to the Django backend during local dev.
+      // The path is passed through unchanged -- the backend serves at /api/v1/...
       "/api": {
         target: "http://localhost:8000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+      "/ws": {
+        target: "ws://localhost:8000",
+        changeOrigin: true,
+        ws: true,
       },
     },
   },

@@ -26,13 +26,12 @@ REGISTRY=""
 SERVICE=""
 VERSION=$(git -C "$ROOT_DIR" describe --tags --always 2>/dev/null || echo "dev")
 
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --no-cache)  NO_CACHE=true; shift ;;
-        --push)      PUSH=true; shift ;;
-        --registry)  shift; REGISTRY="${1:-}"; shift ;;
-        --service)   shift; SERVICE="${1:-}"; shift ;;
-        *) shift ;;
+for arg in "$@"; do
+    case $arg in
+        --no-cache)  NO_CACHE=true ;;
+        --push)      PUSH=true ;;
+        --registry)  shift; REGISTRY="$1" ;;
+        --service)   shift; SERVICE="$1" ;;
     esac
 done
 

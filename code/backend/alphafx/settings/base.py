@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "channels",
     # Internal apps
     "apps.core",
+    "apps.auth_api",
     "apps.rates",
     "apps.portfolio",
     "apps.analytics",
@@ -250,6 +251,20 @@ SPECTACULAR_SETTINGS = {
         {"name": "alerts", "description": "Price alerts and notifications"},
         {"name": "health", "description": "API health check"},
     ],
+}
+
+# ---------------------------------------------------------------------------
+# JWT (SimpleJWT)
+# ---------------------------------------------------------------------------
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 # ---------------------------------------------------------------------------

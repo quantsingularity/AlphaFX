@@ -91,7 +91,6 @@ class PortfolioListCreateView(APIView):
         result = []
         for p in portfolios:
             positions = list(p.positions.filter(status="open"))
-            [_pos_to_dict(pos) for pos in positions]
             total_pnl = sum(
                 position_pnl(
                     pos.pair,

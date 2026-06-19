@@ -13,7 +13,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", RootView.as_view(), name="root"),
     path("health", HealthView.as_view(), name="health"),
-    # API v1
+    # API v1 -- auth
+    path("api/v1/auth/", include("apps.auth_api.urls")),
+    # API v1 -- domain
     path("api/v1/rates/", include("apps.rates.urls")),
     path("api/v1/portfolios/", include("apps.portfolio.urls")),
     path("api/v1/analytics/", include("apps.analytics.urls")),

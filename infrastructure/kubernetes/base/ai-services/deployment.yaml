@@ -52,7 +52,7 @@ spec:
           image: registry.example.com/alphafx/ai-services:latest
           command:
             - uvicorn
-            - ai_services.api.main:app
+            - api.main:app
             - --host
             - "0.0.0.0"
             - --port

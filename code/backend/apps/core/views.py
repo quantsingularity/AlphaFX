@@ -22,7 +22,6 @@ class HealthView(APIView):
     """Detailed health check."""
 
     def get(self, request):
-        import redis as redis_lib
         from django.conf import settings as s
         from django.db import connection
 
@@ -35,8 +34,13 @@ class HealthView(APIView):
             db_ok = False
 
         try:
+            import redis as redis_lib
+
             r = redis_lib.from_url(s.REDIS_URL)
             r.ping()
+        except ImportError:
+            # redis package not installed (e.g. minimal test environment)
+            cache_ok = False
         except Exception:
             cache_ok = False
 

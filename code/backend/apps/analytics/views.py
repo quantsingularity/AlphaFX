@@ -413,7 +413,6 @@ class StrategyBuilderView(APIView):
             )
 
         # Identify strategy type
-        len(d["legs"])
         strategy_name = _classify_strategy(d["legs"])
 
         # Breakeven analysis across spot range

@@ -2,13 +2,22 @@
  * AlphaFX API Service
  * Typed Axios client covering all Django REST endpoints + WebSocket factory.
  * All methods resolve to the response payload (response.data) directly.
+ *
+ * Dev:  set VITE_API_URL="" (or leave unset) so requests go through the Vite
+ *       proxy which forwards /api/* and /ws/* to http://localhost:8000.
+ * Prod: set VITE_API_URL="" so nginx routes /api/* to the backend container.
+ *       Set VITE_API_URL="https://api.myhost.com" only when the API lives on
+ *       a different origin.
  */
 import axios from "axios";
 
-const BASE_URL =
-  (import.meta as any).env?.VITE_API_URL || "http://localhost:8000";
+// Empty string means same-origin: Vite proxy in dev, nginx in prod Docker.
+const BASE_URL: string = (import.meta as any).env?.VITE_API_URL ?? "";
 const API_V1 = `${BASE_URL}/api/v1`;
-const WS_BASE = BASE_URL.replace(/^http/, "ws");
+// WebSocket base: replace http(s) with ws(s), fall back to same host.
+const WS_BASE = BASE_URL
+  ? BASE_URL.replace(/^https?/, (p) => (p === "https" ? "wss" : "ws"))
+  : "";
 
 export const api = axios.create({
   baseURL: API_V1,
@@ -111,7 +120,11 @@ export function createRateStream(
   onTick: (data: any) => void,
   onError?: (e: Event) => void,
 ): WebSocket {
-  const ws = new WebSocket(`${WS_BASE}/ws/rates/${pair.toUpperCase()}/`);
+  // When WS_BASE is empty (same-origin), derive the WS URL from window.location.
+  const wsOrigin =
+    WS_BASE ||
+    `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`;
+  const ws = new WebSocket(`${wsOrigin}/ws/rates/${pair.toUpperCase()}/`);
   ws.onmessage = (e) => {
     try {
       const d = JSON.parse(e.data);

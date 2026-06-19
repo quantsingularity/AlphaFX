@@ -25,11 +25,10 @@ SERVICE=""
 DEPLOY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 VERSION=$(git -C "$ROOT_DIR" describe --tags --always 2>/dev/null || echo "dev")
 
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --skip-tests) SKIP_TESTS=true; shift ;;
-        --service)    shift; SERVICE="${1:-}"; shift ;;
-        *) shift ;;
+for arg in "$@"; do
+    case $arg in
+        --skip-tests) SKIP_TESTS=true ;;
+        --service)    shift; SERVICE="$1" ;;
     esac
 done
 
